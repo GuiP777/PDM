@@ -1,5 +1,5 @@
 import flet as ft
-from formulario import formulario, adicionar_atividade, define_atualiza_tela
+from formulario import formulario, adicionar_atividade, define_atualiza_tela, editar_atividade, confirma_exclusao, remover_atividade
 from funcoes import obter_saudacao
 import atividades
 
@@ -34,7 +34,20 @@ def main(page: ft.Page):
                         controls=[
                             ft.Text(atividade['titulo'], size=18, weight=ft.FontWeight.BOLD),
                             ft.Text(f"Data: {atividade['data']}", size=14),
-                            ft.Text(f"Valor: {atividade['valor']}", size=14)
+                            ft.Text(f"Valor: {atividade['valor']}", size=14),
+                            ft.Row(
+                                controls=[
+                                    ft.IconButton(
+                                        icon=ft.Icons.DELETE,
+                                        on_click=lambda e, atividade_sel=atividade: remover_atividade(atividade_sel)
+                                    ),
+                                    ft.IconButton(
+                                        icon=ft.Icons.EDIT,
+                                        on_click=lambda e, atividade_sel=atividade: editar_atividade(atividade_sel)
+                                    )
+                                ],
+                                alignment=ft.MainAxisAlignment.END,
+                            )
                         ]
                     )
                 )
@@ -74,6 +87,8 @@ def main(page: ft.Page):
     setConteudoTela()
 
     page.add(formulario)
+
+    page.add(confirma_exclusao)
 
     define_atualiza_tela(setConteudoTela)
 
