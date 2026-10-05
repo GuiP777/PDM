@@ -1,5 +1,6 @@
 import flet as ft
 import atividades
+import re
 
 atualiza_conteudo_tela = None
 atividade_em_edicao = None
@@ -9,6 +10,22 @@ campo_titulo = ft.TextField(label="Título")
 campo_data = ft.TextField(label="Data (YYYY-MM-DD)")
 campo_valor = ft.TextField(label="Valor", keyboard_type=ft.KeyboardType.NUMBER)
 
+seletor_data = ft.DatePicker();
+
+def abrir_seletor_data (e):
+    e.page.show_dialog(seletor_data)
+
+linha_data = ft.Row(
+    controls=[
+        campo_data,
+        ft.IconButton(
+            icon=ft.Icons.CALENDAR_MONTH,
+            tooltip="Selecionar data",
+            on_click= abrir_seletor_data
+        )
+    ]
+)
+
 def abrir_formulario():
     formulario.open = True
     formulario.page.update()
@@ -16,6 +33,34 @@ def abrir_formulario():
 def fechar_formulario():
     formulario.open = False
     formulario.page.update()
+
+def validar_formulario():
+    campo_titulo.error = None
+    campo_data.error = None
+    campo_valor.error = None
+
+    valido = True
+
+    conteudo_titulo = campo_titulo.value.strip()
+
+    if not conteudo_titulo:
+        campo_titulo.error = "Informe o titulo"
+        valido = False
+
+    conteudo_data = campo_data.value.strip()
+
+    if not re.fullmatch(r"[0-9]{4}-[0-9]{2}-[0-9]{2}", conteudo_data):
+        campo_data.error = "Informe uma data no formato YYYY-MM-DD"
+        valido = False
+
+    conteudo_valor = campo_valor.value.strip()
+
+    if not re.fullmatch(r"[0-9]+(?:\.[0-9]{1,2})?", conteudo_valor):
+        campo_valor.error = "Informe um número com até duas casas decimais"
+        valido = False
+
+    formulario.page.update()
+    return valido
 
 def abrir_confirma_exclusao():
     confirma_exclusao.open = True
@@ -41,9 +86,11 @@ confirma_exclusao = ft.AlertDialog(
     actions_alignment=ft.MainAxisAlignment.END
 )
 
-
 def salvar_atividade():
     global atividade_em_edicao
+
+    if not validar_formulario():
+        return
 
     if atividade_em_edicao is None:
         atividades.adicionar_atividade({
@@ -70,7 +117,7 @@ formulario = ft.AlertDialog(
     content=ft.Column(
         controls=[
             campo_titulo,
-            campo_data,
+            linha_data,
             campo_valor
         ],
         tight=True,
