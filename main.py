@@ -25,8 +25,16 @@ def main(page: ft.Page):
 
     def listaAtividades():
         lista = []
+        todas_atividades = atividades.carregar_atividades()
 
-        for atividade in atividades.carregar_atividades():
+        if len(todas_atividades) == 0:
+            return [ft.FilledButton(
+                content="Nova atividade",
+                on_click=adicionar_atividade,
+                margin=ft.Margin(top=100)
+            )]
+
+        for atividade in todas_atividades:
             item = ft.Card(
                 content=ft.Container(
                     padding=10,

@@ -1,18 +1,32 @@
+from os.path import expanduser
+
 import flet as ft
 import atividades
 import re
+from datetime import datetime
 
 atualiza_conteudo_tela = None
 atividade_em_edicao = None
 atividade_para_exclusao = None
 
 campo_titulo = ft.TextField(label="Título")
-campo_data = ft.TextField(label="Data (YYYY-MM-DD)")
+campo_data = ft.TextField(label="Data (YYYY-MM-DD)", expand=True, disabled=True)
 campo_valor = ft.TextField(label="Valor", keyboard_type=ft.KeyboardType.NUMBER)
 
-seletor_data = ft.DatePicker();
+def data_selecionada(e):
+    campo_data.value = e.control.value.strftime("%Y-%m-%d")
+    campo_data.update()
+
+seletor_data = ft.DatePicker(
+    on_change = data_selecionada
+)
 
 def abrir_seletor_data (e):
+    if campo_data.value:
+        seletor_data.value = datetime.strptime(
+            campo_data.value, "%Y-%m-%d"
+        )
+
     e.page.show_dialog(seletor_data)
 
 linha_data = ft.Row(
@@ -27,10 +41,22 @@ linha_data = ft.Row(
 )
 
 def abrir_formulario():
+    campo_titulo.error = None
+    campo_data.error = None
+    campo_valor.error = None
+
     formulario.open = True
     formulario.page.update()
 
 def fechar_formulario():
+    campo_titulo.error = None
+    campo_data.error = None
+    campo_valor.error = None
+
+    campo_titulo.value = ''
+    campo_data.value = ''
+    campo_valor.value = ''
+
     formulario.open = False
     formulario.page.update()
 
@@ -53,10 +79,10 @@ def validar_formulario():
         campo_data.error = "Informe uma data no formato YYYY-MM-DD"
         valido = False
 
-    conteudo_valor = campo_valor.value.strip()
+    conteudo_valor = str(campo_valor.value).strip()
 
     if not re.fullmatch(r"[0-9]+(?:\.[0-9]{1,2})?", conteudo_valor):
-        campo_valor.error = "Informe um número com até duas casas decimais"
+        campo_valor.error = "Informe um número com \n""até duas casas decimais.\n""Utilize . como separador"
         valido = False
 
     formulario.page.update()
@@ -153,7 +179,7 @@ def remover_atividade(atividade):
     atividade_para_exclusao = atividade
 
     confirma_exclusao.content = ft.Text(
-        f"Deseja realmente excluir:\n{atividade_para_exclusao['titulo']}"
+        f"Deseja realmente excluir:\n{atividade_para_exclusao['titulo']}?"
     )
 
     abrir_confirma_exclusao()
