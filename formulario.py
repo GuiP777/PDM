@@ -45,6 +45,11 @@ def abrir_formulario():
     campo_data.error = None
     campo_valor.error = None
 
+    if atividade_em_edicao is None:
+        campo_titulo.value = ''
+        campo_data.value = ''
+        campo_valor.value = ''
+
     formulario.open = True
     formulario.page.update()
 
